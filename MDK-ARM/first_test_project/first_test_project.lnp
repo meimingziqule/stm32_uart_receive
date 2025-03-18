@@ -1,4 +1,4 @@
---cpu Cortex-M4.fp
+--cpu=Cortex-M4.fp
 "first_test_project\startup_stm32f407xx.o"
 "first_test_project\oled.o"
 "first_test_project\pid.o"
@@ -28,8 +28,8 @@
 "first_test_project\stm32f4xx_hal_tim_ex.o"
 "first_test_project\stm32f4xx_hal_uart.o"
 "first_test_project\system_stm32f4xx.o"
-"first_test_project\openmv_1.o"
+"first_test_project\openmv.o"
 --strict --scatter "first_test_project\first_test_project.sct"
---summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
 --list "first_test_project.map" -o first_test_project\first_test_project.axf

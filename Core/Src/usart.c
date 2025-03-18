@@ -39,7 +39,7 @@ FILE __stdout;
 ******************************************************/
 int fputc(int ch, FILE *f)
 {
-	HAL_UART_Transmit(&huart3, (uint8_t*)&ch, 1, 10);
+	HAL_UART_Transmit(&huart2, (uint8_t*)&ch, 1, 10);
 	return ch;
 }
 /* USER CODE END 0 */

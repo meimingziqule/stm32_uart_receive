@@ -2,8 +2,10 @@
   "ExpandedNodes": [
     "",
     "\\Core",
-    "\\Core\\openmv_receive"
+    "\\Core\\Inc",
+    "\\Core\\openmv_receive",
+    "\\Core\\Src"
   ],
-  "SelectedNode": "\\Core\\openmv_receive\\openmv.c",
+  "SelectedNode": "\\Core\\Src\\main.c",
   "PreviewInSolutionExplorer": false
 }

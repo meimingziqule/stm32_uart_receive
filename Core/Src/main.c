@@ -49,20 +49,16 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-/*
-typedef struct
- {
-     float target_val;
-     float actual_val;
-     float err;
-     float err_last;
-     float Kp,Ki,Kd;
-     float integral;
- }pid;
-*/
+extern uint8_t rx_buffer[rx_buffer_num];
+extern enum Receive_State
+{
+    FIND_HEADER,
+    RECEIVE_DATA,
+    DATA_READY,
+}UartRxState;
+extern uint8_t parse_buffer[rx_buffer_num];
 
-//pid my_pid1 = { 20,0,0,0,150,1.241,0,0 };
-//pid my_pid1 = { 80,0,0,0,250,10,0,0 };
+
 pid my_pid1 = { 120,0,0,0,250,10,0,0 };
 uint16_t actual_1;
 uint16_t actual_2;
@@ -85,7 +81,6 @@ float pid_compare;
 int  first_out_flag = 1;
 float Encoder_Overflow_Count = 0;
 
-extern uint8_t rx_buffer[50];
 
 /* USER CODE END PV */
 
@@ -138,17 +133,9 @@ int main(void)
   MX_USART6_UART_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-    HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
-    HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
 
-    HAL_TIM_Base_Start(&htim4);
 
-    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
-
-    HAL_TIM_Base_Start_IT(&htim1);
-
-   HAL_UART_Receive_IT(&huart3,rx_buffer,sizeof(rx_buffer));
+  HAL_UART_Receive_IT(&huart2,rx_buffer,1);
 
 
 
@@ -158,13 +145,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     while (1)
     {
-	    //printf("%f,%f,%f,%f,%f,%f,%f\n",Carvelocity,my_pid1.target_val,Velocity_output,my_pid1.err,Current_Count,Last_Count, Encoder_Overflow_Count);
-			//HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_SET);		
-	//printf("%f,%f\n",Carvelocity,pid_compare);
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+     Openmv_Data_Process();
     }
   /* USER CODE END 3 */
 }
@@ -215,56 +200,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
-{
-    
-    if (htim->Instance == TIM1)
-    {
-        
-
-        actual_1 = __HAL_TIM_GET_COUNTER(&htim3);
-        Current_Count = (float)actual_1;
-
-        // 检测编码器是否溢出
-        if (Current_Count < Last_Count) // 溢出情况
-        {
-			Encoder_Overflow_Count =1;
-			Carvelocity = Current_Count - Last_Count + 65535;
-        }
-
-		else
-		{
-				Carvelocity = Current_Count - Last_Count;
-		}
-		filtered_velocity = 0.7 * filtered_velocity + 0.3 * Carvelocity;
-		Last_Count = Current_Count;
-
-
-        Velocity_output = PID_realize(filtered_velocity, &my_pid1);
-        pid_compare = __HAL_TIM_GET_COMPARE(&htim4, TIM_CHANNEL_1);
-
-        Velocity_output = (Velocity_output > 10000) ? 10000 : Velocity_output;
-        Velocity_output = (Velocity_output < -10000) ? -10000 : Velocity_output;
-
-        if (Velocity_output > 0)
-        {
-            HAL_GPIO_WritePin(AIN1_GPIO_Port, AIN1_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(AIN2_GPIO_Port, AIN2_Pin, GPIO_PIN_SET);
-            __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, Velocity_output);
-        }
-        else
-        {
-            HAL_GPIO_WritePin(AIN1_GPIO_Port, AIN1_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(AIN2_GPIO_Port, AIN2_Pin, GPIO_PIN_SET);
-            __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, 10000+Velocity_output);
-        }
-
-    }
-}
-
-
 /* USER CODE END 4 */
 
 /**
